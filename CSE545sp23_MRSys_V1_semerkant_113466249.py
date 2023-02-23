@@ -17,8 +17,8 @@
 ## Original Code written by H. Andrew Schwartz
 ## for SBU's Big Data Analytics Course 
 ##
-## Student Name:
-## Student ID: 
+## Student Name: Soroush Semerkant
+## Student ID: 113466249
 
 
 import sys
@@ -150,13 +150,21 @@ class MRSysSim:
         print("namenode_m2r after map tasks complete:")
         pprint(sorted(list(namenode_m2r)))
 
+
+        # pprint(sorted(list(namenode_m2r)))
+
         #STEP-4
         #"send" each key-value pair to its assigned reducer by placing each 
         #into a list of lists, where to_reduce_task[task_num] = [list of kv pairs]
         to_reduce_task = []
+        for i in range(self.num_reduce_tasks):
+            to_reduce_task.append([])
         #[[TODO:PartII.A]]
-
-        
+        for i in namenode_m2r:
+            # print(i)
+            to_reduce_task[(i[0]%self.num_reduce_tasks)].append(i[1])
+        # print('====================reduce task =====================')
+        # pprint(to_reduce_task)
         #STEP-5
         #launch the reduce tasks as a new process for each. 
         processes = []
@@ -197,6 +205,8 @@ class WordCountMRSys(MRSysSim): #[Example]
 
 class matrixMultMRSys(MRSysSim):
     def map(self, k, v):
+        # print("---------------In to Map----------------")
+        # pprint((k, v))
         pairs = []
         (name_dim, i, j) = k
         name, mdims, ndims = [s.split(',') for s in name_dim.split(':')]
@@ -211,6 +221,8 @@ class matrixMultMRSys(MRSysSim):
             j, a = i, j#for n we are ordering differently
             for i in range(int(mdims[0])):
                 pairs.append(((newname, i, a), ('n', j, v)))
+        # print("---------------Out of Map----------------")
+        # pprint(pairs)
         return pairs
         
     
@@ -218,10 +230,16 @@ class matrixMultMRSys(MRSysSim):
         rowcolSum = 0#stores the sum
         #separate m and n, keyed by j
         #[[TODO:PartII.B]]
-
+        # print("---------------Part II.B----------------")
+        # pprint((k,vs))
+        # return
         #sum product of m and n js:
         #[[TODO:PartII.B]]
-
+        for i in vs:
+            if(i[0]=='m'):
+                for j in vs:
+                    if(j[0]=='n' and i[1]==j[1]):
+                        rowcolSum += i[2]*j[2]
 
         return (k, rowcolSum)
 
@@ -229,11 +247,29 @@ class meanMRSys(MRSysSim):
     #[[TODO:PartII.C]] Create the map and reduce functions to return the mean r, g, and, b
     def map(self, k, v): 
         #[TODO]#
-        return []
+        # print("---------------In to Map----------------")
+        # pprint((k, v))
+        pairs = [(0, (v[0],1)),(1,(v[1],1)),(2,(v[2],1))]
+        # pairs = [(v[0],1),(v[1],1),(v[2],1)]
+        # for i in range(len(v)):
+        #     pairs.append((i, v[i]))
+        # print("---------------Out of Map----------------")
+        # pprint(pairs)
+        return pairs
     
     def reduce(self, k, vs): 
         #[TODO]#
-        return []
+        # print("---------------Out of Reduce----------------")
+        
+        # result = (k, sum(vs[:][0])/sum(vs[:][1]))
+        total = 0
+        count = 0
+        for v in vs:
+            total += v[0]
+            count += v[1]
+        result = (k, total/count)
+        # pprint(result)
+        return result
 			
 ##########################################################################
 ##########################################################################
@@ -252,37 +288,41 @@ if __name__ == "__main__": #[Uncomment peices to test]
     
     ###################
     ##run WordCount:
-    print("\n\n*****************\n Word Count\n*****************\n")
-    data = [(1, "The horse raced past the barn fell"),
-            (2, "The complex houses married and single soldiers and their families"),
-            (3, "There is nothing either good or bad, but thinking makes it so"),
-            (4, "I burn, I pine, I perish"),
-            (5, "Come what come may, time and the hour runs through the roughest day"),
-            (6, "Be a yardstick of quality."),
-            (7, "A horse is the projection of peoples' dreams about themselves - strong, powerful, beautiful"),
-            (8, "I believe that at the end of the century the use of words and general educated opinion will have altered so much that one will be able to speak of machines thinking without expecting to be contradicted."),
-            (9, "The car raced past the finish line just in time."),
-	    (10, "Car engines purred and the tires burned.")]
-    print("\nWord Count Basic WITHOUT Combiner:")
-    mrObjectNoCombiner = WordCountMRSys(data, 4, 3)
-    mrObjectNoCombiner.runSystem()
-    print("\nWord Count Basic WITH Combiner:")
-    mrObjectWCombiner = WordCountMRSys(data, 4, 3, use_combiner=True)
-    mrObjectWCombiner.runSystem()
+    # print("\n\n*****************\n Word Count\n*****************\n")
+    # data = [(1, "The horse raced past the barn fell"),
+    #         (2, "The complex houses married and single soldiers and their families"),
+    #         (3, "There is nothing either good or bad, but thinking makes it so"),
+    #         (4, "I burn, I pine, I perish"),
+    #         (5, "Come what come may, time and the hour runs through the roughest day"),
+    #         (6, "Be a yardstick of quality."),
+    #         (7, "A horse is the projection of peoples' dreams about themselves - strong, powerful, beautiful"),
+    #         (8, "I believe that at the end of the century the use of words and general educated opinion will have altered so much that one will be able to speak of machines thinking without expecting to be contradicted."),
+    #         (9, "The car raced past the finish line just in time."),
+	#     (10, "Car engines purred and the tires burned.")]
+    # print("\nWord Count Basic WITHOUT Combiner:")
+    # mrObjectNoCombiner = WordCountMRSys(data, 4, 3)
+    # mrObjectNoCombiner.runSystem()
+    # print("\nWord Count Basic WITH Combiner:")
+    # mrObjectWCombiner = WordCountMRSys(data, 4, 3, use_combiner=True)
+    # mrObjectWCombiner.runSystem()
 
-    ###################
-    ##Mean
-    print("\n\n*************************\n Mean \n*************************\n")
-    filename = sys.argv[1]
-    data = []
-    with open(filename, 'r') as infile:
-        data = [eval(i.strip()) for i in infile.readlines()]
-    data = list(zip(range(len(data)), data))
+
+    
+    # ###################
+    # ##Mean
+    # print("\n\n*************************\n Mean \n*************************\n")
+    # filename = sys.argv[1]
+    # data = []
+    # with open(filename, 'r') as infile:
+    #     data = [eval(i.strip()) for i in infile.readlines()]
+    # data = list(zip(range(len(data)), data))
         
-    print("\nExample of input data: ", data[:10])
-    mrObject = meanMRSys(data, 4, 3)
-    mrObject.runSystem()
-
+    # print("\nExample of input data: ", data[:10])
+    # mrObject = meanMRSys(data, 4, 3)
+    # mrObject.runSystem()
+    
+    
+    
     
     ###################
     ##run Matrix Multiply:
@@ -302,5 +342,5 @@ if __name__ == "__main__": #[Uncomment peices to test]
     
     mrObject = matrixMultMRSys(test3, 16, 10)
     mrObject.runSystem()
-
+    
   
