@@ -28,6 +28,9 @@ from pprint import pprint
 import numpy as np
 from random import random
 
+from datetime import datetime
+import time
+
 
 ##########################################################################
 ##########################################################################
@@ -130,6 +133,9 @@ class MRSysSim:
         #the following starts a process
         #      p = Process(target=self.mapTask, args=(chunk,namenode_m2r))
         #      p.start()  
+
+        st = datetime.now()
+
         processes = []
         chunkSize = int(np.ceil(len(self.data) / int(self.num_map_tasks)))
 
@@ -141,41 +147,59 @@ class MRSysSim:
             processes.append(Process(target=self.mapTask, args=(chunk,namenode_m2r,self.use_combiner)))
             processes[-1].start()
             chunkStart = chunkEnd
-
+        
+        
         #STEP-3
         #join map task processes back
         for p in processes:
             p.join()
 		        #print output from map tasks 
         print("namenode_m2r after map tasks complete:")
-        pprint(sorted(list(namenode_m2r)))
-
-
         # pprint(sorted(list(namenode_m2r)))
+
+        print("maps took: ")
+        print(datetime.now() - st)
+        pprint(sorted(list(namenode_m2r)))
 
         #STEP-4
         #"send" each key-value pair to its assigned reducer by placing each 
         #into a list of lists, where to_reduce_task[task_num] = [list of kv pairs]
-        to_reduce_task = []
-        for i in range(self.num_reduce_tasks):
-            to_reduce_task.append([])
-        #[[TODO:PartII.A]]
+
+        st = datetime.now()
+
+        # to_reduce_task = []
+        # for i in range(self.num_reduce_tasks):
+        #     to_reduce_task.append([])
+        # #[[TODO:PartII.A]]
+        # for i in namenode_m2r:
+        #     # print(i)
+        #     to_reduce_task[(i[0]%self.num_reduce_tasks)].append(i[1])
+        to_reduce_task = [[] for _ in range(self.num_reduce_tasks)]
         for i in namenode_m2r:
-            # print(i)
             to_reduce_task[(i[0]%self.num_reduce_tasks)].append(i[1])
+        print("splitting reduce took: ")
+        print(datetime.now() - st)
+
+        
         # print('====================reduce task =====================')
         # pprint(to_reduce_task)
         #STEP-5
         #launch the reduce tasks as a new process for each. 
+        st = datetime.now()
         processes = []
         for kvs in to_reduce_task:
             processes.append(Process(target=self.reduceTask, args=(kvs, namenode_fromR)))
             processes[-1].start()
 
+
         #STEP-6
         #join the reduce tasks back
         for p in processes:
             p.join()
+        
+        print("reduce took: ")
+        print(datetime.now() - st)
+
         #print output from reducer tasks 
         print("namenode_fromR after reduce tasks complete:")
         pprint(sorted(list(namenode_fromR)))
@@ -249,26 +273,46 @@ class meanMRSys(MRSysSim):
         #[TODO]#
         # print("---------------In to Map----------------")
         # pprint((k, v))
-        pairs = [(0, (v[0],1)),(1,(v[1],1)),(2,(v[2],1))]
+        # pairs = [(0, (v[0],1)),(1,(v[1],1)),(2,(v[2],1))]
         # pairs = [(v[0],1),(v[1],1),(v[2],1)]
         # for i in range(len(v)):
         #     pairs.append((i, v[i]))
         # print("---------------Out of Map----------------")
         # pprint(pairs)
-        return pairs
+
+
+
+        # return [('r',v[0]),('g', v[1]),('b', v[2])] #if you want to actually split the tasks but that takes longer so why would I do that
+        return [(0,v)]
     
     def reduce(self, k, vs): 
         #[TODO]#
         # print("---------------Out of Reduce----------------")
         
+
+        #if you want to actually split the tasks but that takes longer so why would I do that
+
+        
         # result = (k, sum(vs[:][0])/sum(vs[:][1]))
-        total = 0
+        # total = 0
+        # count = 0
+        # for v in vs:
+        #     total += v
+        #     # count += v[1]
+        # result = (k, total/len(vs))
+
+        totalr = 0
+        totalg = 0
+        totalb = 0
         count = 0
         for v in vs:
-            total += v[0]
-            count += v[1]
-        result = (k, total/count)
+            totalr+=v[0]
+            totalg+=v[1]
+            totalb+=v[2]
+            count+=1
+
         # pprint(result)
+        result = [('r', totalr/count),('g', totalg/count),('b', totalb/count)]
         return result
 			
 ##########################################################################
