@@ -286,40 +286,40 @@ if __name__ == "__main__": #[Uncomment peices to test]
     
     print("\n\nTESTING YOUR CODE\n")
     
-    ###################
-    ##run WordCount:
-    # print("\n\n*****************\n Word Count\n*****************\n")
-    # data = [(1, "The horse raced past the barn fell"),
-    #         (2, "The complex houses married and single soldiers and their families"),
-    #         (3, "There is nothing either good or bad, but thinking makes it so"),
-    #         (4, "I burn, I pine, I perish"),
-    #         (5, "Come what come may, time and the hour runs through the roughest day"),
-    #         (6, "Be a yardstick of quality."),
-    #         (7, "A horse is the projection of peoples' dreams about themselves - strong, powerful, beautiful"),
-    #         (8, "I believe that at the end of the century the use of words and general educated opinion will have altered so much that one will be able to speak of machines thinking without expecting to be contradicted."),
-    #         (9, "The car raced past the finish line just in time."),
-	#     (10, "Car engines purred and the tires burned.")]
-    # print("\nWord Count Basic WITHOUT Combiner:")
-    # mrObjectNoCombiner = WordCountMRSys(data, 4, 3)
-    # mrObjectNoCombiner.runSystem()
-    # print("\nWord Count Basic WITH Combiner:")
-    # mrObjectWCombiner = WordCountMRSys(data, 4, 3, use_combiner=True)
-    # mrObjectWCombiner.runSystem()
+    ##################
+    #run WordCount:
+    print("\n\n*****************\n Word Count\n*****************\n")
+    data = [(1, "The horse raced past the barn fell"),
+            (2, "The complex houses married and single soldiers and their families"),
+            (3, "There is nothing either good or bad, but thinking makes it so"),
+            (4, "I burn, I pine, I perish"),
+            (5, "Come what come may, time and the hour runs through the roughest day"),
+            (6, "Be a yardstick of quality."),
+            (7, "A horse is the projection of peoples' dreams about themselves - strong, powerful, beautiful"),
+            (8, "I believe that at the end of the century the use of words and general educated opinion will have altered so much that one will be able to speak of machines thinking without expecting to be contradicted."),
+            (9, "The car raced past the finish line just in time."),
+	    (10, "Car engines purred and the tires burned.")]
+    print("\nWord Count Basic WITHOUT Combiner:")
+    mrObjectNoCombiner = WordCountMRSys(data, 4, 3)
+    mrObjectNoCombiner.runSystem()
+    print("\nWord Count Basic WITH Combiner:")
+    mrObjectWCombiner = WordCountMRSys(data, 4, 3, use_combiner=True)
+    mrObjectWCombiner.runSystem()
 
 
     
-    # ###################
-    # ##Mean
-    # print("\n\n*************************\n Mean \n*************************\n")
-    # filename = sys.argv[1]
-    # data = []
-    # with open(filename, 'r') as infile:
-    #     data = [eval(i.strip()) for i in infile.readlines()]
-    # data = list(zip(range(len(data)), data))
+    ###################
+    ##Mean
+    print("\n\n*************************\n Mean \n*************************\n")
+    filename = sys.argv[1]
+    data = []
+    with open(filename, 'r') as infile:
+        data = [eval(i.strip()) for i in infile.readlines()]
+    data = list(zip(range(len(data)), data))
         
-    # print("\nExample of input data: ", data[:10])
-    # mrObject = meanMRSys(data, 4, 3)
-    # mrObject.runSystem()
+    print("\nExample of input data: ", data[:10])
+    mrObject = meanMRSys(data, 4, 3)
+    mrObject.runSystem()
     
     
     
